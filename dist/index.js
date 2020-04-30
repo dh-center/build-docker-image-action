@@ -985,16 +985,14 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(__webpack_require__(470));
 const exec_1 = __webpack_require__(986);
+const presets_1 = __webpack_require__(930);
 /**
  * Action's main function
  */
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            console.log('It works!');
-            console.log(exec_1.exec('docker ps'));
-            console.log(exec_1.exec('pwd'));
-            console.log(exec_1.exec('ls -la'));
+            yield exec_1.exec(`${presets_1.reactPreset} docker build . -f-`);
         }
         catch (error) {
             core.setFailed(error.message);
@@ -1541,6 +1539,48 @@ function isUnixExecutable(stats) {
 /***/ (function(module) {
 
 module.exports = require("fs");
+
+/***/ }),
+
+/***/ 930:
+/***/ (function(__unusedmodule, exports) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+// language=Dockerfile
+exports.reactPreset = `
+# Build stage
+FROM node:12-alpine as build-stage
+
+WORKDIR /app
+
+# Install project dependencies
+COPY package.json yarn.lock ./
+
+RUN yarn install
+
+# Build project
+COPY . .
+
+RUN yarn build
+
+# production environment
+FROM nginx:1.17.3-alpine
+
+# Copy build result from previous stage
+COPY --from=build-stage /app/build /usr/share/nginx/html
+
+# Pass new nginx config
+RUN rm /etc/nginx/conf.d/default.conf
+
+COPY nginx.conf /etc/nginx/conf.d
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
+`;
+
 
 /***/ }),
 
