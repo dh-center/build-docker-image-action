@@ -992,7 +992,10 @@ const presets_1 = __webpack_require__(930);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            yield exec_1.exec(`${presets_1.reactPreset} docker build . -f-`);
+            core.info('Start building docker image');
+            yield exec_1.exec('docker build -f - .', undefined, {
+                input: Buffer.from(presets_1.reactPreset),
+            });
         }
         catch (error) {
             core.setFailed(error.message);

@@ -7,7 +7,10 @@ import { reactPreset } from './presets';
  */
 async function run(): Promise<void> {
   try {
-    await exec(`${reactPreset} docker build . -f-`);
+    core.info('Start building docker image');
+    await exec('docker build -f - .', undefined, {
+      input: Buffer.from(reactPreset),
+    });
   } catch (error) {
     core.setFailed(error.message);
   }
